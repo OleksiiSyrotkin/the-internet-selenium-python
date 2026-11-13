@@ -82,9 +82,15 @@ class HoversPage(BasePage):
 
     def hover_and_get_caption(self, index):
         figure = self.find_all(self.FIGURES)[index]
-        ActionChains(self.driver).move_to_element(figure).perform()
+        image = figure.find_element(By.TAG_NAME, "img")
         caption = figure.find_element(*self.CAPTION)
-        self.wait.until(lambda _: caption.is_displayed())
+        self.wait.until(lambda d: d.execute_script("return arguments[0].complete && arguments[0].naturalWidth > 0", image))
+
+        def hovered(_):
+            ActionChains(self.driver).move_to_element(image).perform()
+            return caption.is_displayed()
+
+        self.wait.until(hovered)
         return caption.text
 
 
